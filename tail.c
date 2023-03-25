@@ -17,7 +17,7 @@
 //=============================== Types ===============================//
 
 #define MAX_LINE_SIZE 4096
-#define DEFAULT_LAST_N 10
+#define LAST_N_LINES 10
 
 typedef struct
 {
@@ -37,7 +37,7 @@ typedef struct
 {
     unsigned int start;
     unsigned int end;
-    cb_element *element;
+    cb_element *elements;
     unsigned int size;
 
 } cb_t;
@@ -47,32 +47,59 @@ typedef struct
 args_t parse_args(int argc, char **argv);
 
 cb_t *cb_create(unsigned long n);
+// TODO len doplnit z funkcie get_input
+//  void cb_put(cb,line);
 
-// void cb_put(cb,line);
-
-// cb_element cb_get(cb);
+// TODO len ctrl+c ctrlc+v z getinput 
+//  cb_element cb_get(cb);
 
 void cb_free(cb_t *cb);
 
 //=============================== Functions ===============================//
+//  args_t args = parse_args(argc, argv);
+int get_input(cb_t *cb, FILE *file)
+{
+    // TODO refaktorizacia
+    int i = 0;
+    cb->start = 0;
+    cb->end = 0;
+
+    while (fgets(cb->elements[cb->end++].line, MAX_LINE_SIZE, file) != NULL)
+    {
+        cb->start%=cb->size;
+        cb->end %= cb->size;
+        if(cb->start == cb->end) cb->start++;
+        i++;
+    }
+    // TODO kontrola LAST_N_LINES <= lines in file? 
+    // ? mozno nie, lebo tail POSSIX funguje
+    for (int i = 0; i < LAST_N_LINES; i++)
+    {
+        printf("%s", cb->elements[cb->start++].line);
+        cb->start %= cb->size;
+    }
+
+    return i; // Return the number of lines read
+}
 
 cb_t *cb_create(unsigned long n)
 {
     cb_t *cb = malloc(sizeof(cb_t));
+    if (cb == NULL)
+    {
+        fprintf(stderr, "Error: memory allocation error");
+        exit(EXIT_FAILURE);
+    }
     cb->size = n;
     cb->start = 0;
     cb->end = 0;
-    cb->element = malloc(sizeof(cb_element) * cb->size);
+    cb->elements = malloc(sizeof(cb_element) * cb->size);
     return cb;
 }
 
 void cb_free(cb_t *cb)
 {
-    long size = cb->size;
-    for(int i = 0; i < size; i++)
-    {
-        free(cb->element[i].line);
-    }
+    free(cb->elements);
     free(cb);
 }
 
@@ -81,7 +108,7 @@ args_t parse_args(int argc, char **argv)
     args_t args;
     args.fp = stdin;                   // default input file
     const char *program_switch = "-n"; // program optional switch
-    long last_n_lines = DEFAULT_LAST_N;
+    long last_n_lines = LAST_N_LINES;
 
     if (argc > 1 && (strcmp(argv[1], program_switch) == 0)) // ./tail -n (program with switch)
     {
@@ -114,6 +141,12 @@ args_t parse_args(int argc, char **argv)
         args.fp = fopen(argv[1], "r");
     }
 
+    if (args.fp == NULL)
+    {
+        fprintf(stderr, "Error: Could not open file\n");
+        exit(EXIT_FAILURE);
+    }
+
     return args;
 
 error_exit1:
@@ -125,26 +158,23 @@ error_exit1:
 
 int main(int argc, char **argv)
 {
-    /*args_t args = parse_args(argc, argv);
-    if (args.fp == NULL)
-    {
-        fprintf(stderr, "Error: Could not open file\n");
-        return -1;
-    }
+    args_t args = parse_args(argc, argv);
 
-    char c;
-    while ((c = fgetc(args.fp)) != EOF)
+    /*char c;
+    while ((c = fgets(args.fp)) != EOF)
     {
         putchar(c);
     }
     putchar('\n');
 
-    fclose(args.fp);*/
+    */
 
-    cb_t *cbufik = cb_create(10);
-    strcpy(cbufik->element->line,"string");
+    cb_t *cb = cb_create(LAST_N_LINES);
 
-    printf("%s\n", cbufik->element->line);
+    printf("lines read: %d\n", get_input(cb, args.fp));
 
-    cb_free(cbufik);
+    
+
+    fclose(args.fp);
+    cb_free(cb);
 }
