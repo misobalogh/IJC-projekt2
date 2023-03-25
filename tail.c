@@ -19,6 +19,13 @@
 #define MAX_LINE_SIZE 4096
 #define DEFAULT_LAST_N 10
 
+typedef struct 
+{
+    long number_of_lines;
+    FILE* fp;
+} args_t;
+
+
 typedef struct
 {
     unsigned int size; // max size 4095
@@ -27,9 +34,7 @@ typedef struct
 
 //=============================== Interface ===============================//
 
-long parse_args(int argc, char **argv);
-
-int invaild_number_of_lines();
+args_t parse_args(int argc, char **argv);
 
 // void cb_create(n);
 
@@ -41,15 +46,11 @@ int invaild_number_of_lines();
 
 //=============================== Functions ===============================//
 
-/*if (fp == NULL)
-                {
-                    fprintf(stderr, "Error opening file %s\n", argv[2]);
-                    exit(EXIT_FAILURE);
-                */
 
-long parse_args(int argc, char **argv)
+args_t parse_args(int argc, char **argv)
 {
-    FILE *fp = stdin;                  // default input file
+    args_t args;
+    args.fp = stdin;                  // default input file
     const char *program_switch = "-n"; // program optional switch
     long last_n_lines = DEFAULT_LAST_N;
 
@@ -75,26 +76,38 @@ long parse_args(int argc, char **argv)
 
             if (argc > 3) // ./tail -n last_n file
             {
-                fp = argv[3];
+                args.fp = fopen(argv[3], "r");
             }
         }
     }
     else if (argc > 1)
     {
-        fp = argv[1];
+        args.fp = fopen(argv[1], "r");
     }
-    printf("%s\n", fp);
-    
-    return last_n_lines;
+   
+    return args;
 
 error_exit1:
     fprintf(stderr, "tail: invalid number of lines\n");
-    return -1;
+    exit(EXIT_FAILURE);
 }
 
 //=============================== Main ===============================//
 
 int main(int argc, char **argv)
 {
-    long last_n_lines = parse_args(argc, argv);
+    args_t args = parse_args(argc, argv);
+    if (args.fp == NULL)
+    {
+        fprintf(stderr, "Error: Could not open file\n");
+        return -1;
+    }
+
+    char c;
+    while ((c = fgetc(args.fp)) != EOF){
+        putchar(c);
+    }
+    putchar('\n');
+
+    fclose(args.fp);
 }
