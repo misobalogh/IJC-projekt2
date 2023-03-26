@@ -7,7 +7,13 @@
 
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
-// TODO komenty, hlavicka
+
+/**
+ * @file tail.c
+ * @author Michal Balogh
+ *
+ * @brief riesnie IJC-DU2, priklad a)
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -16,7 +22,7 @@
 
 //=============================== Types ===============================//
 
-#define MAX_LINE_SIZE 10
+#define MAX_LINE_SIZE 4096
 #define DEFAULT_LAST_N_LINES 10
 
 /**
@@ -39,7 +45,7 @@ typedef struct
  */
 typedef struct
 {
-    char line[MAX_LINE_SIZE+1];
+    char line[MAX_LINE_SIZE + 1];
 
 } cb_element;
 
@@ -65,8 +71,35 @@ typedef struct
 
 //=============================== Interface ===============================//
 
+/**
+ * Parses command line arguments.
+ * If the first argument is "-n", the argument after that is expected to be a non-negative integer representing the number of lines to print from file.
+ * If there is also third argument, it is expected to be the name of the file to read from.
+ * If the first argument is not "-n", it is expected to be the name of the file to read from.
+ * If no arguments are provided, the function will read from stdin.
+ * If an error occurs during parsing, program will end with EXIT_FAILURE.
+ *
+ * @param argc The number of command line arguments.
+ * @param argv The array of command line arguments.
+ *
+ * @returns Args_t struct containing the parsed arguments.
+ *
+ */
 args_t parse_args(int argc, char **argv);
 
+/**
+ * Prints the last n lines of a file.
+ *
+ * The default number of lines is 10, and the function reads up to a maximum of 4095 characters per line.
+ * To store lines from the file to the circular buffer, the function uses the 'cb_put' function,
+ * and to retrieve the lines from the circular buffer, it uses the 'cb_get' function.
+ *
+ * @param cb A circular buffer used to store the last n lines of the file.
+ * @param file A pointer to the file to read from.
+ * @param n The number of lines to print.
+ *
+ * @return None
+ */
 void print_last_n_lines(cb_t *cb, FILE *file, unsigned int n);
 
 /**
@@ -116,7 +149,7 @@ void cb_put(cb_t *cb, char *line)
         cb->start++;
         cb->start %= cb->size; // If start reaches size of the buffer, it will be set to position 0.
     }
-    strncpy(cb->elements[cb->end++].line, line, MAX_LINE_SIZE+1);
+    strncpy(cb->elements[cb->end++].line, line, MAX_LINE_SIZE + 1);
     cb->end %= cb->size; // If end reaches size of the buffer, it will be set to position 0.
 }
 
@@ -140,10 +173,10 @@ void print_last_n_lines(cb_t *cb, FILE *file, unsigned int n)
     {
         if (strlen(line) == MAX_LINE_SIZE && line[MAX_LINE_SIZE - 1] != '\n')
         {
-            
+
             if (line[strlen(line)] == '\0')
             {
-                line[strlen(line)-1] = '\n';
+                line[strlen(line) - 1] = '\n';
             }
             if (!printed_warning)
             {
@@ -156,10 +189,10 @@ void print_last_n_lines(cb_t *cb, FILE *file, unsigned int n)
                 // Discard characters until the end of line or end of file is reached
             }
         }
-        
+
         cb_put(cb, line);
     }
-    
+
     for (int i = 0; i < n; i++)
     {
         printf("%s", cb_get(cb));

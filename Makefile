@@ -13,12 +13,8 @@ all: $(EXEC)
 tail: tail.c
 	$(CC) $(CFLAGS) tail.c -o tail
 
-testargs:
-	./tail
-	./tail testfile
-	./tail -n
-	./tail -n -4-asaa
-	./tail -n 4asd testfile
+test:
+	./tests.sh
 
 clean:
 	rm -f tail $(OBJS) $(DEPS)
