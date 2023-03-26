@@ -17,8 +17,14 @@
 //=============================== Types ===============================//
 
 #define MAX_LINE_SIZE 4096
-#define LAST_N_LINES 10
+#define DEFAULT_LAST_N_LINES 10
 
+/**
+ * A struct that contains parsed arguments.
+ *
+ * @param number_of_lines  Last N number of lines to print from the file if the '-n' switch is enabled.
+ * @param fp A pointer to the file to be read from.
+ */
 typedef struct
 {
     long number_of_lines;
@@ -26,13 +32,28 @@ typedef struct
 
 } args_t;
 
+/**
+ * A struct representing an element in a circular buffer.
+ *
+ * @param line The content of the element.
+ */
 typedef struct
 {
-    unsigned int size; // max size 4095
     char line[MAX_LINE_SIZE];
 
 } cb_element;
 
+/**
+ * A circular buffer data structure that stores a range of elements.
+ *
+ * @typedef cb_t
+ * @struct cb_t
+ *
+ * @param start The starting index of the circular buffer.
+ * @param end The ending index of the circular buffer.
+ * @param elements A pointer to array of elements stored in the circular buffer.
+ * @param size The size of the circular buffer.
+ */
 typedef struct
 {
     unsigned int start;
@@ -46,40 +67,82 @@ typedef struct
 
 args_t parse_args(int argc, char **argv);
 
+/**
+ * Creates a new circular buffer with a given capacity.
+ *
+ * @param n The capacity of the circular buffer.
+ *
+ * @returns A pointer to the new circular buffer.
+ */
 cb_t *cb_create(unsigned long n);
-// TODO len doplnit z funkcie get_input
-//  void cb_put(cb,line);
 
-// TODO len ctrl+c ctrlc+v z getinput 
-//  cb_element cb_get(cb);
+/**
+ * Puts a string into the circular buffer.
+ *
+ * @param cb A pointer to the circular buffer.
+ * @param line A pointer to the string to be put into the buffer.
+ *
+ * @returns None
+ */
+void cb_put(cb_t *cb, char *line);
 
+
+/**
+ * Retrieves the next element from the circular buffer.
+ *
+ * @param cb A pointer to the circular buffer.
+ *
+ * @returns A pointer to the next element in the buffer. Returns NULL if the buffer is empty.
+ */
+char *cb_get(cb_t *cb);
+
+/**
+ * Frees the memory allocated for a circular buffer and its elements.
+ *
+ * @param cb A pointer to the circular buffer to be freed.
+ *
+ * @returns None
+ */
 void cb_free(cb_t *cb);
 
 //=============================== Functions ===============================//
-//  args_t args = parse_args(argc, argv);
-int get_input(cb_t *cb, FILE *file)
+
+void cb_put(cb_t *cb, char *line)
 {
-    // TODO refaktorizacia
-    int i = 0;
+    strcpy(cb->elements[++cb->end].line,line);
+    cb->end %= cb->size; // If end reaches size of the buffer, it will be set to position 0.
+    if (cb->end== cb->start) { // If end reaches start, start is moved and the old data are overwritten by new data.
+        cb->start++;           
+        cb->start %= cb->size; // If start reaches size of the buffer, it will be set to position 0.
+    }
+}
+
+char* cb_get(cb_t *cb)
+{
+    char *line = cb->elements[cb->start++].line; 
+    cb->start %= cb->size; // If start reaches size of the buffer, it will be set to position 0.
+    return line;
+}
+
+int print_last_n_lines(cb_t *cb, FILE *file, unsigned int n)
+{
+    int number_of_lines = 0;
     cb->start = 0;
     cb->end = 0;
 
-    while (fgets(cb->elements[cb->end++].line, MAX_LINE_SIZE, file) != NULL)
+    char line[MAX_LINE_SIZE];
+    while (fgets(line, MAX_LINE_SIZE, file) != NULL)
     {
-        cb->start%=cb->size;
-        cb->end %= cb->size;
-        if(cb->start == cb->end) cb->start++;
-        i++;
-    }
-    // TODO kontrola LAST_N_LINES <= lines in file? 
-    // ? mozno nie, lebo tail POSSIX funguje
-    for (int i = 0; i < LAST_N_LINES; i++)
-    {
-        printf("%s", cb->elements[cb->start++].line);
-        cb->start %= cb->size;
+        cb_put(cb,line);
+        number_of_lines++;
     }
 
-    return i; // Return the number of lines read
+    for (int i = 0; i < DEFAULT_LAST_N_LINES; i++)
+    {
+        printf("%s", cb_get(cb));
+    }
+
+    return number_of_lines; // Returns number of lines read
 }
 
 cb_t *cb_create(unsigned long n)
@@ -108,7 +171,7 @@ args_t parse_args(int argc, char **argv)
     args_t args;
     args.fp = stdin;                   // default input file
     const char *program_switch = "-n"; // program optional switch
-    long last_n_lines = LAST_N_LINES;
+    long last_n_lines = DEFAULT_LAST_N_LINES;
 
     if (argc > 1 && (strcmp(argv[1], program_switch) == 0)) // ./tail -n (program with switch)
     {
@@ -158,23 +221,21 @@ error_exit1:
 
 int main(int argc, char **argv)
 {
+    // Parse arguments
     args_t args = parse_args(argc, argv);
 
-    /*char c;
-    while ((c = fgets(args.fp)) != EOF)
-    {
-        putchar(c);
-    }
-    putchar('\n');
-
-    */
-
-    cb_t *cb = cb_create(LAST_N_LINES);
-
-    printf("lines read: %d\n", get_input(cb, args.fp));
-
+    // Create empty circular buffer
+    cb_t *cb = cb_create(DEFAULT_LAST_N_LINES);
     
+    // Prints last n lines (default )
+    print_last_n_lines(cb, args.fp, args.number_of_lines);
+    // TODO kontrola DEFAULT_LAST_N_LINES <= lines in file?
+    // ? mozno nie, lebo tail POSSIX funguje
 
     fclose(args.fp);
+    
     cb_free(cb);
 }
+
+
+//=============================== End of file tail.c ===============================//
