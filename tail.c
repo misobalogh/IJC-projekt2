@@ -16,7 +16,7 @@
 
 //=============================== Types ===============================//
 
-#define MAX_LINE_SIZE 4096
+#define MAX_LINE_SIZE 10
 #define DEFAULT_LAST_N_LINES 10
 
 /**
@@ -39,7 +39,7 @@ typedef struct
  */
 typedef struct
 {
-    char line[MAX_LINE_SIZE];
+    char line[MAX_LINE_SIZE+1];
 
 } cb_element;
 
@@ -67,6 +67,8 @@ typedef struct
 
 args_t parse_args(int argc, char **argv);
 
+void print_last_n_lines(cb_t *cb, FILE *file, unsigned int n);
+
 /**
  * Creates a new circular buffer with a given capacity.
  *
@@ -85,7 +87,6 @@ cb_t *cb_create(unsigned long n);
  * @returns None
  */
 void cb_put(cb_t *cb, char *line);
-
 
 /**
  * Retrieves the next element from the circular buffer.
@@ -109,40 +110,60 @@ void cb_free(cb_t *cb);
 
 void cb_put(cb_t *cb, char *line)
 {
-    strcpy(cb->elements[++cb->end].line,line);
-    cb->end %= cb->size; // If end reaches size of the buffer, it will be set to position 0.
-    if (cb->end== cb->start) { // If end reaches start, start is moved and the old data are overwritten by new data.
-        cb->start++;           
+    // If end reaches start, start is moved and the old data are overwritten by new data.
+    if (cb->end == cb->start)
+    {
+        cb->start++;
         cb->start %= cb->size; // If start reaches size of the buffer, it will be set to position 0.
     }
+    strncpy(cb->elements[cb->end++].line, line, MAX_LINE_SIZE+1);
+    cb->end %= cb->size; // If end reaches size of the buffer, it will be set to position 0.
 }
 
-char* cb_get(cb_t *cb)
+char *cb_get(cb_t *cb)
 {
-    char *line = cb->elements[cb->start++].line; 
+    char *line = cb->elements[cb->start++].line;
     cb->start %= cb->size; // If start reaches size of the buffer, it will be set to position 0.
     return line;
 }
 
-int print_last_n_lines(cb_t *cb, FILE *file, unsigned int n)
+void print_last_n_lines(cb_t *cb, FILE *file, unsigned int n)
 {
-    int number_of_lines = 0;
+
     cb->start = 0;
     cb->end = 0;
 
-    char line[MAX_LINE_SIZE];
-    while (fgets(line, MAX_LINE_SIZE, file) != NULL)
-    {
-        cb_put(cb,line);
-        number_of_lines++;
-    }
+    int printed_warning = 0;
 
-    for (int i = 0; i < DEFAULT_LAST_N_LINES; i++)
+    char line[MAX_LINE_SIZE + 2];
+    while (fgets(line, MAX_LINE_SIZE + 1, file) != NULL)
+    {
+        if (strlen(line) == MAX_LINE_SIZE && line[MAX_LINE_SIZE - 1] != '\n')
+        {
+            
+            if (line[strlen(line)] == '\0')
+            {
+                line[strlen(line)-1] = '\n';
+            }
+            if (!printed_warning)
+            {
+                fprintf(stderr, "Warning: line is longer than the max length of line.\n");
+                printed_warning = 1;
+            }
+            int trash;
+            while ((trash = fgetc(file)) != EOF && trash != '\n')
+            {
+                // Discard characters until the end of line or end of file is reached
+            }
+        }
+        
+        cb_put(cb, line);
+    }
+    
+    for (int i = 0; i < n; i++)
     {
         printf("%s", cb_get(cb));
     }
-
-    return number_of_lines; // Returns number of lines read
 }
 
 cb_t *cb_create(unsigned long n)
@@ -171,7 +192,7 @@ args_t parse_args(int argc, char **argv)
     args_t args;
     args.fp = stdin;                   // default input file
     const char *program_switch = "-n"; // program optional switch
-    long last_n_lines = DEFAULT_LAST_N_LINES;
+    args.number_of_lines = DEFAULT_LAST_N_LINES;
 
     if (argc > 1 && (strcmp(argv[1], program_switch) == 0)) // ./tail -n (program with switch)
     {
@@ -187,8 +208,8 @@ args_t parse_args(int argc, char **argv)
             {
                 goto error_exit1;
             }
-            last_n_lines = atol(argv[2]);
-            if (last_n_lines < 0)
+            args.number_of_lines = strtol(argv[2], NULL, 10);
+            if (args.number_of_lines < 0)
             {
                 goto error_exit1;
             }
@@ -223,19 +244,23 @@ int main(int argc, char **argv)
 {
     // Parse arguments
     args_t args = parse_args(argc, argv);
+    if (args.number_of_lines == 0)
+    {
+        return 0;
+    }
 
     // Create empty circular buffer
-    cb_t *cb = cb_create(DEFAULT_LAST_N_LINES);
-    
+    cb_t *cb = cb_create(args.number_of_lines);
+
     // Prints last n lines (default )
     print_last_n_lines(cb, args.fp, args.number_of_lines);
-    // TODO kontrola DEFAULT_LAST_N_LINES <= lines in file?
-    // ? mozno nie, lebo tail POSSIX funguje
 
+    // Cleanup
+
+    // Close file
     fclose(args.fp);
-    
+    // Deallocate memmory from circular buffer
     cb_free(cb);
 }
-
 
 //=============================== End of file tail.c ===============================//
