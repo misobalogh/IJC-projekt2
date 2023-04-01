@@ -82,7 +82,7 @@ typedef struct
  * @param argc The number of command line arguments.
  * @param argv The array of command line arguments.
  *
- * @returns Args_t struct containing the parsed arguments.
+ * @returns args_t struct containing the parsed arguments.
  *
  */
 args_t parse_args(int argc, char **argv);
@@ -193,7 +193,7 @@ void print_last_n_lines(cb_t *cb, FILE *file, unsigned int n)
         cb_put(cb, line);
     }
 
-    for (int i = 0; i < n; i++)
+    for (unsigned int i = 0; i < n; i++)
     {
         printf("%s", cb_get(cb));
     }
