@@ -11,7 +11,6 @@
 // TODO if return value == NULL, exit program
 
 #include "htab.h"
-#include <stdio.h>     // Error message
 #include "htab_item.h" // struct htab_item_t
 #include "htab_t.h"    // struct htab_t
 
@@ -28,14 +27,12 @@ htab_t *htab_init(const size_t n)
     htab_t *new = malloc(sizeof(htab_t));
     if (new == NULL)
     {
-        fprintf(stderr, "Memmory allocation error\n");
         return NULL;
     }
 
     new->arr_ptr = calloc(n, sizeof(htab_item_t));
     if (new->arr_ptr == NULL)
     {
-        fprintf(stderr, "Memmory allocation error\n");
         return NULL;
     }
 

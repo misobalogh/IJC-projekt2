@@ -8,6 +8,16 @@
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
 
-#include "htab.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-void htab_statistics(const htab_t * t);
+/**
+ * Reads a word from a file and stores it in a character array.
+ *
+ * @param s The character array to store the word in.
+ * @param max The maximum number of characters to read.
+ * @param f The file to read from.
+ *
+ * @returns The number of characters read.
+ */
+int read_word(char *s, int max, FILE *f);
