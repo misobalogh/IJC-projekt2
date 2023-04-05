@@ -22,13 +22,16 @@
  */
 void htab_for_each(const htab_t * t, void (*f)(htab_pair_t *data))
 {
+    if (f == NULL) {
+        return;
+    }
     // Iterate through the array.
     for (size_t i = 0; i < t->arr_size; i++) 
     {
         // Iterate through the records in the list.
         for (htab_item_t *item = t->arr_ptr[i]; item != NULL; item = item->next) 
         {
-            // Applies function on the item.
+            // Applies function 'f' on the item.
             f(&item->pair);
         }
     }

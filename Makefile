@@ -9,30 +9,40 @@
 # ***************************************************************
 
 
+
 CC = gcc 
 CFLAGS = -g -std=c11 -pedantic -Wall -Wextra
-#LDLIBS = 
+DEPS=$(wildcard *.h)
+LDLIBS = -L. -lhtab
 
-SRC=$(wildcard *.c)
-OBJ=$(patsubst %.c, %.o, $(SRC))
+AR = ar
+ARFLAGS = crs
+
+
+LIBSRC=$(wildcard htab*.c)
+OBJ=$(patsubst %.c, %.o, $(LIBSRC))
 
 .PHONY: all clean
 
-all: libhtab.a libhtab.so
+all: wordcount
+
+io.o: io.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+wordcount: wordcount.o io.o libhtab.a
+	$(CC) $(CFLAGS) wordcount.o io.o -o $@ $(LDLIBS)
+
+wordcount.o: wordcount.c $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 libhtab.a: $(OBJ)
-	ar crs $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 libhtab.so: $(OBJ)
 	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^
 
-%.o: %.c libhtab.h
+%.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c -fPIC -o $@ $<
 
-#run: program-s program-d
-#	./program-s
-#	LD_LIBRARY_PATH="." ./program-d
-
 clean:
-	rm -rf *.o libhtab.a libhtab.so
- 
+	rm -rf *.o libhtab.a libhtab.so wordcount

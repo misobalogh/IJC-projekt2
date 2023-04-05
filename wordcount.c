@@ -13,10 +13,10 @@
 
 #define MAX_WORD 255
 
-
+// !! CHANGE THIS TO YOUR FUNCTION !!
 void print_item(htab_pair_t *pair)
 {
-    printf("%s\t%d\n", pair->key, pair->value);
+    printf("%s    %d\n", pair->key, pair->value);
 }
 
 
@@ -26,10 +26,15 @@ int main()
     char word[MAX_WORD];
     while (read_word(word, MAX_WORD, stdin) != EOF)
     {
-        htab_lookup_add(m, word)->value++;
+        if(htab_lookup_add(m, word) == NULL)
+        {
+            fprintf(stderr, "Error: memory allocation error.\n");
+            htab_free(m);
+            return 1;
+        }
     }
     
-    htab_for_each(m, print_item);
+    htab_for_each(m, &print_item);
 
     htab_free(m);
 }
