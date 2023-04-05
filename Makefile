@@ -24,12 +24,15 @@ OBJ=$(patsubst %.c, %.o, $(LIBSRC))
 
 .PHONY: all clean
 
-all: wordcount
+all: wordcount wordcount-dynamic libhtab.a libhtab.so tail
 
 io.o: io.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 wordcount: wordcount.o io.o libhtab.a
+	$(CC) $(CFLAGS) wordcount.o io.o -o $@ $(LDLIBS)
+
+wordcount-dynamic: wordcount.o io.o libhtab.so
 	$(CC) $(CFLAGS) wordcount.o io.o -o $@ $(LDLIBS)
 
 wordcount.o: wordcount.c $(DEPS)
@@ -45,4 +48,4 @@ libhtab.so: $(OBJ)
 	$(CC) $(CFLAGS) -c -fPIC -o $@ $<
 
 clean:
-	rm -rf *.o libhtab.a libhtab.so wordcount
+	rm -rf *.o libhtab.a libhtab.so wordcount tail wordcount-dynamic

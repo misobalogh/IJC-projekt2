@@ -11,15 +11,6 @@
 #include "io.h"
 #include <ctype.h>
 
-/**
- * Reads a word from a file and stores it in a character array.
- *
- * @param s The character array in which the function store the word.
- * @param max The maximum length of the word to be read - the rest of the word will be skipped.
- * @param f The file stream to read from.
- *
- * @returns The length of the read word, or EOF if no word has been read.
- */
 int read_word(char *s, int max, FILE *f){
     char c;
     int len = 0;

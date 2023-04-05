@@ -29,31 +29,28 @@
  */
 htab_pair_t *htab_lookup_add(htab_t *t, htab_key_t key)
 {
-    // Get hash of the key.
-    size_t index = (htab_hash_function(key) % t->arr_size);
-
-    htab_item_t *item = t->arr_ptr[index];
-    while (item != NULL)
+    // First, check if the key already exists.
+    htab_pair_t *pair = htab_find(t, key);
+    if (pair != NULL)
     {
-        if (strcmp(item->pair.key, key) == 0)
-        {
-            // Key found, increment the value and return the pointer to the record.
-            item->pair.value++;
-            return &item->pair;
-        }
-        item = item->next;
+        pair->value++;
+        return pair;
     }
+
     // Key not found, create new item.
     htab_item_t *new_item = malloc(sizeof(htab_item_t));
     if (new_item == NULL)
     {
         return NULL;
     }
+    
+    // Get hash of the key.
+    size_t index = (htab_hash_function(key) % t->arr_size);
 
     // Assign the pointer to next item to the newly created item.
     new_item->next = t->arr_ptr[index];
     // Add newly created item to the list.
-    t->arr_ptr[index] = new_item; 
+    t->arr_ptr[index] = new_item;
 
     new_item->pair.key = malloc(sizeof(*new_item->pair.key) * (strlen(key) + 1));
     if (new_item->pair.key == NULL)
@@ -62,7 +59,7 @@ htab_pair_t *htab_lookup_add(htab_t *t, htab_key_t key)
         return NULL;
     }
     // Copy the key to the new item, copies only up to length of the key + 1 for null terminator.
-    memcpy((void *)new_item->pair.key, (void *)key, strlen(key) + 1); 
+    memcpy((void *)new_item->pair.key, (void *)key, strlen(key) + 1);
 
     new_item->pair.value = 1;
     t->size++; // Update the number of records.

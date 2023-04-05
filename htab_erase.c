@@ -44,7 +44,7 @@ bool htab_erase(htab_t *t, htab_key_t key)
                 // Moves the pointer from previous item to the next item -> deletes the current item.
                 prev->next = item->next;
             }
-            free(item->pair.key);
+            free((char *)item->pair.key);
             free(item);
             t->size--; // Updates the size of records in the table.
             return true;

@@ -16,7 +16,7 @@
 // !! CHANGE THIS TO YOUR FUNCTION !!
 void print_item(htab_pair_t *pair)
 {
-    printf("%s    %d\n", pair->key, pair->value);
+    printf("%s\t%d\n", pair->key, pair->value);
 }
 
 
@@ -24,7 +24,7 @@ int main()
 {
     htab_t *m = htab_init(10);
     char word[MAX_WORD];
-    while (read_word(word, MAX_WORD, stdin) != EOF)
+    while (read_word(word, MAX_WORD+1, stdin) != EOF)
     {
         if(htab_lookup_add(m, word) == NULL)
         {
