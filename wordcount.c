@@ -19,13 +19,19 @@ void print_item(htab_pair_t *pair)
     printf("%s\t%d\n", pair->key, pair->value);
 }
 
-
 int main()
 {
     htab_t *m = htab_init(10);
     char word[MAX_WORD];
-    while (read_word(word, MAX_WORD+1, stdin) != EOF)
+    int characters_read = 0;
+    bool error_not_printed = true;
+    while ((characters_read = read_word(word, MAX_WORD+1, stdin)) != EOF)
     {
+        if (characters_read > MAX_WORD && error_not_printed)
+        {
+            fprintf(stderr, "Warning: The word exceeds the maximum length limit and has been truncated.\n");
+            error_not_printed = false;
+        }   
         if(htab_lookup_add(m, word) == NULL)
         {
             fprintf(stderr, "Error: memory allocation error.\n");
@@ -34,6 +40,8 @@ int main()
         }
     }
     
+    //htab_statistics(m);
+   
     htab_for_each(m, &print_item);
 
     htab_free(m);
