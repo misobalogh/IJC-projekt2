@@ -1,26 +1,33 @@
 # ***************************************************************
-# * File Name: htab.h
-# * Description: riesnie IJC-DU2, priklad b), hlavickovy subor pre kniznicu htablib
+# * File Name: Makefile
+# * Description: riesnie IJC-DU2, Makefile
 # * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 # * Faculty: FIT VUT
-# * Date: 25.02.2023
+# * Date: 04.04.2023
 #
 # * Comments: prekladane pomocou gcc 9.4.0
 # ***************************************************************
 
 
+# Compiler + flags
+CC = gcc
+CFLAGS = -g -std=c11 -pedantic -Wall -Wextra -fPIC
 
-CC = gcc 
-CFLAGS = -g -std=c11 -pedantic -Wall -Wextra
-DEPS=$(wildcard *.h)
+# Libs
 LDLIBS = -L. -lhtab
+LDFLAGS = -shared
 
+# Dependencies
+DEPS=$(wildcard *.h)
+
+# Archiver
 AR = ar
 ARFLAGS = crs
 
-
+# Objects
 LIBSRC=$(wildcard htab*.c)
-OBJ=$(patsubst %.c, %.o, $(LIBSRC))
+OBJ=$(LIBSRC:.c=.o)
+
 
 .PHONY: all clean
 
@@ -42,10 +49,16 @@ libhtab.a: $(OBJ)
 	$(AR) $(ARFLAGS) $@ $^
 
 libhtab.so: $(OBJ)
-	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 %.o: %.c $(DEPS)
-	$(CC) $(CFLAGS) -c -fPIC -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+tail: tail.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -rf *.o libhtab.a libhtab.so wordcount tail wordcount-dynamic
+	rm -f *.o libhtab.a libhtab.so wordcount wordcount-dynamic tail xbalog06.zip
+
+zip:
+	zip xbalog06.zip *.c *.h Makefile

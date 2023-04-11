@@ -1,9 +1,9 @@
 /***************************************************************
 * File Name: htab.h
-* Description: riesnie IJC-DU2, priklad b), hlavickovy subor pre kniznicu htablib
+* Description: riesnie IJC-DU2, priklad b) funkcia kniznice htablib 
 * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 * Faculty: FIT VUT
-* Date: 25.02.2023
+* Date: 28.03.2023
 
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
@@ -12,10 +12,6 @@
 #define HTAB_ITEM_H__
 
 #include "htab.h"
-
-// !  Tento záznam je definován v privátním hlavičkovém souboru pro všechny
-// !  moduly tabulky a není dostupný při použití knihovny ("Opaque data type").
-// !  Uživatel používá ukazatel na vnořenou strukturu htab_pair_t. 
 
 /**
  * A struct representing an item in a hash table.
@@ -35,3 +31,5 @@ struct htab_item
 
 
 #endif /* HTAB_ITEM_H__ */
+
+//====================== End of file htab_item.h ===============================//

@@ -1,9 +1,9 @@
 /***************************************************************
 * File Name: htab.h
-* Description: riesnie IJC-DU2, priklad b), hlavickovy subor pre kniznicu htablib
+* Description: riesnie IJC-DU2, priklad b) datova struktura htab_t
 * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 * Faculty: FIT VUT
-* Date: 25.02.2023
+* Date: 28.03.2023
 
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
@@ -13,7 +13,6 @@
 
 #include "htab.h"
 #include "htab_item.h"
-// ? #include <stdlib.h>
 
 /**
  * Hash table data structure.
@@ -30,3 +29,5 @@ struct htab
 };
 
 #endif /* HTAB_T_H__ */
+
+//====================== End of file htab_t.h ===============================//

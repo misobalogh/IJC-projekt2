@@ -11,7 +11,7 @@
 #include "htab.h"
 #include "htab_item.h" // struct htab_item_t
 #include "htab_t.h"    // struct htab_t
-#include "stdio.h"
+#include <stdio.h>
 
 /**
  * Looks up 'key' in the hash table 't' and if it does not exist,

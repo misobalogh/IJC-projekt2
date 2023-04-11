@@ -1,9 +1,9 @@
 /***************************************************************
 * File Name: htab.h
-* Description: riesnie IJC-DU2, priklad b), hlavickovy subor pre kniznicu htablib
+* Description: riesnie IJC-DU2, priklad b) Funkcia pouzita na ziskanie slov zo vstupu vo wordcount.c
 * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 * Faculty: FIT VUT
-* Date: 25.02.2023
+* Date: 04.04.2023
 
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
@@ -36,3 +36,5 @@ int read_word(char *s, int max, FILE *f){
     else
         return len;
 }
+
+//====================== End of file io.c ===============================//

@@ -1,9 +1,9 @@
 /***************************************************************
 * File Name: htab.h
-* Description: riesnie IJC-DU2, priklad b), hlavickovy subor pre kniznicu htablib
+* Description: riesnie IJC-DU2, priklad b) funkcia kniznice htablib 
 * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 * Faculty: FIT VUT
-* Date: 25.02.2023
+* Date: 28.03.2023
 
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
@@ -37,3 +37,5 @@ void htab_for_each(const htab_t * t, void (*f)(htab_pair_t *data))
         }
     }
 }
+
+//====================== End of file htab_for_each.c ===============================//

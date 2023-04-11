@@ -1,6 +1,6 @@
 /***************************************************************
 * File Name: tail.c
-* Description: riesnie IJC-DU2, priklad a)
+* Description: riesnie IJC-DU2, priklad a) nemodularny program tail
 * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 * Faculty: FIT VUT
 * Date: 25.03.2023

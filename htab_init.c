@@ -1,14 +1,12 @@
 /***************************************************************
 * File Name: htab.h
-* Description: riesnie IJC-DU2, priklad b), hlavickovy subor pre kniznicu htablib
+* Description: riesnie IJC-DU2, priklad b) funkcia kniznice htablib 
 * Author: MICHAL BALOGH <xbalog06@stud.fit.vutbr.cz
 * Faculty: FIT VUT
-* Date: 25.02.2023
+* Date: 28.03.2023
 
 * Comments: prekladane pomocou gcc 9.4.0
 ***************************************************************/
-
-// TODO if return value == NULL, exit program
 
 #include "htab.h"
 #include "htab_item.h" // struct htab_item_t
@@ -41,3 +39,5 @@ htab_t *htab_init(const size_t n)
 
     return new;
 }
+
+//====================== End of file htab_init.c ===============================//
