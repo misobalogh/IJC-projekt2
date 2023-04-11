@@ -31,13 +31,16 @@ OBJ=$(LIBSRC:.c=.o)
 
 .PHONY: all clean
 
-all: wordcount wordcount-dynamic libhtab.a libhtab.so tail
+all: wordcount wordcount-dynamic tail
+
+tail: tail.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 io.o: io.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 wordcount: wordcount.o io.o libhtab.a
-	$(CC) $(CFLAGS) wordcount.o io.o -o $@ $(LDLIBS)
+	$(CC) $(CFLAGS) -static wordcount.o io.o -o $@ $(LDLIBS)
 
 wordcount-dynamic: wordcount.o io.o libhtab.so
 	$(CC) $(CFLAGS) wordcount.o io.o -o $@ $(LDLIBS)
@@ -49,7 +52,7 @@ libhtab.a: $(OBJ)
 	$(AR) $(ARFLAGS) $@ $^
 
 libhtab.so: $(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -58,7 +61,7 @@ tail: tail.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f *.o libhtab.a libhtab.so wordcount wordcount-dynamic tail xbalog06.zip
+	rm -f *.o libhtab.a libhtab.so wordcount wordcount-dynamic tail
 
 zip:
 	zip xbalog06.zip *.c *.h Makefile
